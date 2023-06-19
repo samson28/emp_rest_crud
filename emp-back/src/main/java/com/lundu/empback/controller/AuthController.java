@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.Map;
+import java.util.Objects;
 
 @Controller
 public class AuthController {
@@ -16,9 +17,9 @@ public class AuthController {
 
     @PostMapping("/api/login")
     public ResponseEntity<Map<String,String>> jwtToken(String username, String password){
-        if(username.equals("")){
+        if(Objects.equals(username, "")){
             return new ResponseEntity<>(Map.of("status","error","message","username is required"), HttpStatus.UNAUTHORIZED);
-        } else if (password.equals("")) {
+        } else if (Objects.equals(password, "")) {
             return new ResponseEntity<>(Map.of("status","error","message","password is required"), HttpStatus.UNAUTHORIZED);
         }
         return new ResponseEntity<>(authService.authenticate(username,password),HttpStatus.OK);
