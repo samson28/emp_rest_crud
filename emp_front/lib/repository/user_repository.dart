@@ -48,8 +48,8 @@ class UserRepo {
       'Accept': 'application/json',
       'Authorization': 'Bearer $token'
     });
-    final jsonData = jsonDecode(response.body);
-    return jsonData;
+    //final jsonData = jsonDecode(response.body);
+    //return jsonData;
   }
 
   current() async {
