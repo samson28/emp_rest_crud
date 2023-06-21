@@ -1,44 +1,23 @@
 package com.lundu.empback.servicies;
 
+import com.lundu.empback.dto.request.EmployeeRequestDTO;
+import com.lundu.empback.dto.response.EmployeeResponseDTO;
 import com.lundu.empback.entities.Employee;
-import com.lundu.empback.repositories.EmployeeRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
-@Service
-public class EmployeeService {
-    @Autowired
-    EmployeeRepository employeeRepository;
+public interface EmployeeService {
+    public void save (EmployeeRequestDTO employeeRequestDTO);
 
-    public void save (Employee employee){
-        employeeRepository.save(employee);
-    }
+    public List<EmployeeResponseDTO> showAll();
 
-    public List<Employee> showAll(){
-        return employeeRepository.findAll();
-    }
+    public EmployeeResponseDTO find(int id);
 
-    public Employee find(int id){
-        Optional<Employee> optional = employeeRepository.findById(id);
-        Employee employee = null;
-        if(optional.isPresent())
-        {
-            employee = optional.get();
-        }else
-        {
-            throw new RuntimeException("Cet employé est inexistant");
-        }
-        return employee;
-    }
+    public void delete(int id);
 
-    public void delete(int id){
-        employeeRepository.deleteById(id);
-    }
+    public void update(int id, EmployeeRequestDTO employeeRequestDTO);
 
-    public List<Employee> search(String tips){
-        return employeeRepository.searchEmployeeByNomOrPrenom(tips);
-    }
+    public List<EmployeeResponseDTO> search(String tips);
 }
