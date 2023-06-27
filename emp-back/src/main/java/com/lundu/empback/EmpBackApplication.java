@@ -9,7 +9,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication
-@EnableConfigurationProperties(RsaKeysConfig.class)
+//@EnableConfigurationProperties(RsaKeysConfig.class)
 public class EmpBackApplication {
 
 	public static void main(String[] args) {

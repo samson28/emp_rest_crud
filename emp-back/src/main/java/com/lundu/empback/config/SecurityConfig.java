@@ -30,14 +30,20 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPublicKey;
+import java.util.UUID;
+
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+//@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
-    @Autowired
-    private RsaKeysConfig rsaKeysConfig;
+  //  @Autowired
+  //  private RsaKeysConfig rsaKeysConfig;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -71,14 +77,26 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtEncoder jwtEncoder(){
-            JWK jwk = new RSAKey.Builder(rsaKeysConfig.publicKey()).privateKey(rsaKeysConfig.privateKey()).build();
-            JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(new JWKSet(jwk));
-            return new NimbusJwtEncoder(jwkSource);
+    public KeyPair keyPair() throws NoSuchAlgorithmException {
+        var keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(2048);
+        return keyPairGenerator.generateKeyPair();
+    }
+
+    @Bean
+    public RSAKey rsaKey (KeyPair keyPair){
+        return new RSAKey.Builder((RSAPublicKey) keyPair.getPublic()).privateKey(keyPair.getPrivate()).keyID(UUID.randomUUID().toString()).build();
+    }
+
+    @Bean
+    public JwtEncoder jwtEncoder() throws NoSuchAlgorithmException {
+        JWK jwk = rsaKey(keyPair());
+        JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(new JWKSet(jwk));
+        return new NimbusJwtEncoder(jwkSource);
     }
     @Bean
-    public JwtDecoder jwtDecoder(){
-            return NimbusJwtDecoder.withPublicKey(rsaKeysConfig.publicKey()).build();
-        }
+    public JwtDecoder jwtDecoder() throws NoSuchAlgorithmException {
+        return NimbusJwtDecoder.withPublicKey((RSAPublicKey) keyPair().getPublic()).build();
+    }
 }
 
