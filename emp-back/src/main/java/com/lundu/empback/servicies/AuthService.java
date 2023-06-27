@@ -91,6 +91,7 @@ public class AuthService {
                 .claim("scope",scope)
                 .build();
         String jwtAccessToken = jwtEncoder.encode(JwtEncoderParameters.from(jwtClaimsSet)).getTokenValue();
+        idToken.put("status","success");
         idToken.put("accessToken",jwtAccessToken);
         return idToken;
     }

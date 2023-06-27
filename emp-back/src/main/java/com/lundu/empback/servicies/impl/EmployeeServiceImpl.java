@@ -7,18 +7,25 @@ import com.lundu.empback.entities.Employee;
 import com.lundu.empback.repositories.EmployeeRepository;
 import com.lundu.empback.servicies.EmployeeService;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.amqp.RabbitProperties;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
-    @Autowired
-    EmployeeRepository employeeRepository;
-    @Autowired
-    EmployeeDTOMapper employeeDTOMapper;
+
+    private final EmployeeRepository employeeRepository;
+
+    private final EmployeeDTOMapper employeeDTOMapper;
+
+    public EmployeeServiceImpl(EmployeeRepository employeeRepository, EmployeeDTOMapper employeeDTOMapper) {
+        this.employeeRepository = employeeRepository;
+        this.employeeDTOMapper = employeeDTOMapper;
+    }
 
     @Override
     public void save(EmployeeRequestDTO employeeRequestDTO) {
@@ -33,9 +40,10 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     public EmployeeResponseDTO find(int id){
-        return employeeRepository.findById(id)
+        Optional<EmployeeResponseDTO> emp = Optional.ofNullable(employeeRepository.findById(id)
                 .map(employeeDTOMapper)
-                .orElseThrow(() -> new EntityNotFoundException("Cet employé est inexistant"));
+                .orElseThrow(() -> new EntityNotFoundException("Cet employé est inexistant")));
+        return emp.get();
     }
 
     public void delete(int id){
@@ -43,11 +51,12 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public void update(int id, EmployeeRequestDTO employeeRequestDTO) {
+    public EmployeeResponseDTO update(int id, EmployeeRequestDTO employeeRequestDTO) {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(()-> new EntityNotFoundException("Cet employé est inexistant"));
         employee.update(employeeRequestDTO);
         employeeRepository.save(employee);
+        return Stream.of(employee).map(employeeDTOMapper).findFirst().get();
     }
 
     public List<EmployeeResponseDTO> search(String tips){

@@ -23,11 +23,22 @@ public class Employee {
     private String mail;
     private String fonction;
 
+    public Employee(String nom, String prenom, String sex, int age, int tel, String mail, String fonction) {
+        this.nom = nom;
+        this.prenom = prenom;
+        this.sex = sex;
+        this.age = age;
+        this.tel = tel;
+        this.mail = mail;
+        this.fonction = fonction;
+    }
+
     public static Employee fromDTO(EmployeeRequestDTO employeeRequestDTO) {
         Employee employee = new Employee();
         employee.setNom(employeeRequestDTO.nom());
+        employee.setPrenom(employeeRequestDTO.prenom());
         employee.setSex(employeeRequestDTO.sex());
-        employee.setAge(employee.getAge());
+        employee.setAge(employeeRequestDTO.age());
         employee.setTel(employeeRequestDTO.tel());
         employee.setMail(employeeRequestDTO.mail());
         employee.setFonction(employeeRequestDTO.fonction());
