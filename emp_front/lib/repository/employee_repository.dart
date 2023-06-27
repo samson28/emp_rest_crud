@@ -58,8 +58,8 @@ class EmployeRepo {
     return Employe.fromJson(jsonData);
   }
 
-  shearchEmploye(String tips) async {
-    var url = Uri.parse(uri + EmployeUrl().searchUrl());
+  shearchEmploye(String keyword) async {
+    var url = Uri.parse(uri + EmployeUrl().searchUrl(keyword));
     var token = await TokenProvider.getToken();
     var response = await http.get(url, headers: {
       'Accept': 'application/json',
