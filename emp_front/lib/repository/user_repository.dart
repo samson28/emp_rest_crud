@@ -23,6 +23,7 @@ class UserRepo {
       if (jsonData['message'] == 'Unauthorized') {
         return 'Identifiants Incorrectes';
       }
+
       return jsonData['message'];
     }
   }
@@ -30,7 +31,8 @@ class UserRepo {
   register(User user) async {
     var url = Uri.parse(uri + UserUrl().registerUrl());
     var response = await http.post(url,
-        body: user.toJson(), headers: {'Accept': 'application/json'});
+        body: jsonEncode(user.toJson()),
+        headers: {'Accept': 'application/json'});
     Map<String, dynamic> jsonData = jsonDecode(response.body);
 
     if (jsonData['status'] == 'success') {
@@ -42,12 +44,12 @@ class UserRepo {
   }
 
   logout() async {
-    var url = Uri.parse(uri + UserUrl().logoutUrl());
-    var token = TokenProvider.getToken();
-    var response = await http.post(url, headers: {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $token'
-    });
+    // var url = Uri.parse(uri + UserUrl().logoutUrl());
+    // var token = TokenProvider.getToken();
+    // var response = await http.post(url, headers: {
+    //   'Accept': 'application/json',
+    //   'Authorization': 'Bearer $token'
+    // });
     //final jsonData = jsonDecode(response.body);
     //return jsonData;
   }
