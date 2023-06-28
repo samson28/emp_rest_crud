@@ -1,11 +1,10 @@
 import 'dart:async';
 
-import 'package:emp_front/model/employee.dart';
-import 'package:emp_front/repository/employee_repository.dart';
-import 'package:emp_front/repository/user_repository.dart';
-import 'package:emp_front/screen/login.dart';
-import 'package:emp_front/widget/employe_item_widget.dart';
+import 'package:emp_front/bloc/employee/employee_bloc.dart';
+import 'package:emp_front/bloc/search/search_bloc.dart';
+import 'package:emp_front/widget/employe_list_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class EmployeList extends StatefulWidget {
   const EmployeList({super.key});
@@ -15,17 +14,13 @@ class EmployeList extends StatefulWidget {
 }
 
 class _EmployeListState extends State<EmployeList> {
-  List<Employe> employes = [];
   final searchController = TextEditingController();
   bool isLoading = false;
-  bool isEmptyResponse = true;
-  bool hasResponded = false;
-  bool isResponseForDestination = false;
   Timer? searchOnStoppedTyping;
 
   @override
   void initState() {
-    _getEmp();
+    context.read<EmployeeBloc>().add(LoadEmployeeEvent());
     super.initState();
   }
 
@@ -35,49 +30,9 @@ class _EmployeListState extends State<EmployeList> {
     super.dispose();
   }
 
-  // Future.delayed(
-  //   const Duration(milliseconds: 500),
-  //   () => setState(() {
-  //     isLoading = false;
-  //   }),
-  // );
-
   _onChange(value) {
-    setState(() {
-      isLoading = true;
-    });
-
-    if (searchOnStoppedTyping != null) {
-      setState(() => searchOnStoppedTyping?.cancel());
-    }
-    if (searchController.value.text != '') {
-      setState(() => searchOnStoppedTyping =
-          Timer(const Duration(seconds: 1), () => _rechercher(value)));
-    } else {
-      _getEmp();
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
-  _rechercher(String value) async {
-    List<Employe> list = await EmployeRepo().shearchEmploye(value);
-    setState(() {
-      employes = list;
-      isLoading = false;
-    });
-  }
-
-  _getEmp() async {
-    List<Employe> x = await EmployeRepo().getEmploye();
-    setState(() {
-      employes = x;
-    });
-  }
-
-  delEmp(Employe employe) {
-    EmployeRepo().deleteEmploye(employe);
+    context.read<SearchBloc>().add(
+        OnChangeEvent(context: context, searchController: searchController));
   }
 
   @override
@@ -88,14 +43,7 @@ class _EmployeListState extends State<EmployeList> {
         title: const Text('Liste des Employées'),
         actions: [
           IconButton(
-              onPressed: () async {
-                await UserRepo().logout();
-                Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute<void>(
-                        builder: (BuildContext context) => const Login()),
-                    (route) => false);
-              },
+              onPressed: () => Navigator.pushNamed(context, '/'),
               icon: const Icon(Icons.logout))
         ],
       ),
@@ -116,35 +64,36 @@ class _EmployeListState extends State<EmployeList> {
                     prefixIcon: const Icon(Icons.search),
                     fillColor: Colors.grey)),
           ),
-          isLoading
-              ? const LinearProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white))
-              : Container(),
+          BlocBuilder<SearchBloc, SearchState>(builder: (context, state) {
+            return state.isLoading
+                ? const LinearProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white))
+                : Container();
+          }),
           Expanded(
-            child: employes.isEmpty
-                ? const Center(
-                    child: Text("Aucun Employé trouvé"),
-                  )
-                : ListView.builder(
-                    itemCount: employes.length,
-                    itemBuilder: (context, index) {
-                      final employe = employes[index];
-                      return Dismissible(
-                          key: Key(employe.id.toString()),
-                          onDismissed: (direction) {
-                            setState(() {
-                              delEmp(employe);
-                              employes.remove(employe);
-                            });
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                content: Text("${employe.nom} supprimé")));
-                          },
-                          background: Container(color: Colors.red),
-                          child: EmployeItemWidget(
-                            employe: employe,
-                          ));
-                    },
-                  ),
+            child: BlocBuilder<EmployeeBloc, EmployeeState>(
+              builder: (context, state) {
+                if (state is LoadingEmployeeState) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (state is LoadingEmployeeSuccessState) {
+                  return EmployeeListWidget(employes: state.listEmployee);
+                } else if (state is LoadingEmployeeErrorState) {
+                  return Center(
+                    child: Text(state.errorMessage),
+                  );
+                } else if (state is SearchEmployeeErrorState) {
+                  return Center(
+                    child: Text(state.errorMessage),
+                  );
+                } else if (state is SearchEmployeeSuccessState) {
+                  return EmployeeListWidget(employes: state.listEmployee);
+                } else {
+                  return Container();
+                }
+              },
+            ),
           ),
         ],
       ),
@@ -155,4 +104,3 @@ class _EmployeListState extends State<EmployeList> {
     );
   }
 }
-//const BorderRadius.all(Radius.circular(5));

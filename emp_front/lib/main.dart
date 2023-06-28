@@ -1,6 +1,11 @@
+import 'package:emp_front/bloc/employee/employee_bloc.dart';
+import 'package:emp_front/bloc/search/search_bloc.dart';
+import 'package:emp_front/bloc/sign_in/sign_in_bloc.dart';
+import 'package:emp_front/bloc/sign_up/sign_up_bloc.dart';
 import 'package:emp_front/provider/hive_provider.dart';
-import 'package:emp_front/utilities/route.dart';
+import 'package:emp_front/utilities/root_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,15 +18,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      initialRoute: '/',
-      onGenerateRoute: (settings) => RouteGenerator.generateRoute(settings),
-      debugShowCheckedModeBanner: false,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => EmployeeBloc()),
+        BlocProvider(create: (context) => SearchBloc()),
+        BlocProvider(create: (context) => SignInBloc()),
+        BlocProvider(create: (context) => SignUpBloc())
+      ],
+      child: rootView(),
     );
   }
+
+
 }

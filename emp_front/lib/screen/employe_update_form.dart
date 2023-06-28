@@ -1,7 +1,7 @@
+import 'package:emp_front/bloc/employee/employee_bloc.dart';
 import 'package:emp_front/model/employee.dart';
-import 'package:emp_front/repository/employee_repository.dart';
-import 'package:emp_front/screen/employe_list.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class EmpUpdateForm extends StatefulWidget {
   final Employe employe;
@@ -184,7 +184,7 @@ class _EmpUpdateFormState extends State<EmpUpdateForm> {
                     height: 15,
                   ),
                   GestureDetector(
-                    onTap: () async {
+                    onTap: () {
                       if (formKey.currentState!.validate()) {
                         Employe x = Employe(
                           id: widget.employe.id,
@@ -196,13 +196,11 @@ class _EmpUpdateFormState extends State<EmpUpdateForm> {
                           mail: mailController.value.text,
                           fonction: fonctionController.value.text,
                         );
-                        await EmployeRepo().updateEmploye(x);
-                        Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute<void>(
-                                builder: (BuildContext context) =>
-                                    const EmployeList()),
-                            (route) => false);
+                        context
+                            .read<EmployeeBloc>()
+                            .add(UpdateEmployeeEvent(employe: x));
+                        Navigator.pushNamedAndRemoveUntil(
+                            context, "/home", (route) => false);
                       }
                     },
                     child: Container(
