@@ -34,7 +34,7 @@ class AuthServiceTest {
 
     @BeforeEach
     void setUp() {
-        username = "user";
+        username = "john@gmail.com";
         password = "123456789";
     }
 

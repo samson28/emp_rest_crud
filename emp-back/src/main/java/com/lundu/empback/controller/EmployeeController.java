@@ -1,11 +1,10 @@
 package com.lundu.empback.controller;
 
-import com.lundu.empback.dto.mapper.EmployeeDTOMapper;
 import com.lundu.empback.dto.request.EmployeeRequestDTO;
 import com.lundu.empback.dto.response.EmployeeResponseDTO;
 import com.lundu.empback.entities.Employee;
 import com.lundu.empback.servicies.EmployeeService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,13 +13,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@AllArgsConstructor
 @RestController
 @RequestMapping("/api/employee")
 public class EmployeeController {
-    @Autowired
-    EmployeeService employeeService;
-    @Autowired
-    EmployeeDTOMapper employeeDTOMapper;
+
+    private final EmployeeService employeeService;
 
     @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('SCOPE_USER')")

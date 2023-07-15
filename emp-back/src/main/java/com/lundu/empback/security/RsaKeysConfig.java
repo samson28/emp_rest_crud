@@ -1,4 +1,4 @@
-package com.lundu.empback.config;
+package com.lundu.empback.security;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
