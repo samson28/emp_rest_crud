@@ -1,7 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:emp_front/model/user.dart';
-import 'package:emp_front/provider/hive_provider.dart';
 import 'package:emp_front/provider/token_provider.dart';
 import 'package:emp_front/utilities/urls.dart';
 import 'package:http/http.dart' as http;
@@ -32,14 +32,14 @@ class UserRepo {
     var url = Uri.parse(uri + UserUrl().registerUrl());
     var response = await http.post(url,
         body: jsonEncode(user.toJson()),
-        headers: {'Accept': 'application/json'});
-    Map<String, dynamic> jsonData = jsonDecode(response.body);
+        headers: {'Content-Type': 'application/json'});
+    
 
-    if (jsonData['status'] == 'success') {
-      HiveProvider.box.put('token', jsonData['authorisation']['access_token']);
+    if (response.statusCode == HttpStatus.created) {
+      //HiveProvider.box.put('token', jsonData['authorisation']['access_token']);
       return 'success';
     } else {
-      return jsonData['message'];
+      return jsonDecode(response.body);
     }
   }
 

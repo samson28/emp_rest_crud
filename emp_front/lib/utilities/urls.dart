@@ -1,8 +1,8 @@
-const String uri = "http://192.168.1.68:8080/api/";
+const String uri = "http://192.168.1.65:8080/api/";
 
 class UserUrl {
   String loginUrl() => "login";
-  String registerUrl() => "register";
+  String registerUrl() => "user/store";
   String logoutUrl() => "logout";
   String refreshUrl() => "refresh";
   String currentUrl() => "current";

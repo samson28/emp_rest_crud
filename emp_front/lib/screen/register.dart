@@ -31,12 +31,13 @@ class _RegisterState extends State<Register> {
     super.dispose();
   }
 
-  home() {
-    Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute<void>(
-            builder: (BuildContext context) => const EmployeList()),
-        (route) => false);
+  success() {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text("success")));
+  }
+
+  echec() {
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Error")));
   }
 
   @override
@@ -44,20 +45,16 @@ class _RegisterState extends State<Register> {
     register() async {
       var x = await UserRepo().register(
         User(
+            id: "",
             name: _name.value.text,
             email: _email.value.text,
-            password: _password.value.text),
+            password: _password.value.text,
+            roles: ["USER"]),
       );
       if (x == 'success') {
-        showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) => const Center(
-                  child: CircularProgressIndicator(),
-                ));
-        home();
+        success();
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(x)));
+        echec();
       }
     }
 

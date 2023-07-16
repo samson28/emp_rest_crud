@@ -8,7 +8,7 @@ abstract class SignUpState {
 }
 
 class SignUpInitial extends SignUpState {
-   SignUpInitial() : super(user: User(email: "",password: "",name: ""));
+   SignUpInitial() : super(user: User(id:"",email: "",password: "",name: "",roles: ["USER"]));
 }
 
 class SignedUpState extends SignUpState {
@@ -18,5 +18,5 @@ class SignedUpState extends SignUpState {
 class SignUpErrorState extends SignUpState {
   final String errorMessage;
   SignUpErrorState({required this.errorMessage})
-      :  super(user: User(email: "",password: "",name: ""));
+      :  super(user: User(id:"", email: "",password: "",name: "",roles: ["USER"]));
 }
