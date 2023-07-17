@@ -53,16 +53,19 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        return httpSecurity
+
+      return httpSecurity
                     .csrf(AbstractHttpConfigurer::disable)
-                    .authorizeHttpRequests(auth->auth.requestMatchers("/api/login/**").permitAll())
-                    .authorizeHttpRequests(auth->auth.requestMatchers("/api/refresh/**").permitAll())
+                    .authorizeHttpRequests(auth->auth.requestMatchers("/api/login/**","/api/refresh/**").permitAll())
+                    .authorizeHttpRequests(auth->auth.requestMatchers("/api-docs/**").permitAll())
+                    .authorizeHttpRequests(auth->auth.requestMatchers("/api/user/store").permitAll())
                     .authorizeHttpRequests(auth->auth.anyRequest().authenticated())
                     .userDetailsService(userDetailServiceImpl)
                     .sessionManagement(ses->ses.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                     .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
                     .httpBasic(Customizer.withDefaults())
                     .build();
+
     }
 
     @Bean
