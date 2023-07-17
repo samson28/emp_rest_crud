@@ -8,6 +8,7 @@ import com.lundu.empback.repositories.AppUserRepository;
 import com.lundu.empback.servicies.AppUserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,10 +23,13 @@ public class AppUserServiceImpl implements AppUserService {
 
     private final AppUserRepository appUserRepository;
     private final AppUserDTOMapper appUserDTOMapper;
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public void save(AppUserRequestDTO appUserRequestDTO) {
-        appUserRepository.save(AppUser.fromDTO(appUserRequestDTO));
+        AppUser appUser = AppUser.fromDTO(appUserRequestDTO);
+        appUser.setPassword(passwordEncoder.encode(appUser.getPassword()));
+        appUserRepository.save(appUser);
     }
 
     @Override
