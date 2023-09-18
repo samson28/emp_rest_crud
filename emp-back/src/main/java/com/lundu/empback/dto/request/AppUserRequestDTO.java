@@ -1,12 +1,12 @@
 package com.lundu.empback.dto.request;
 
 
-import java.util.List;
+import com.lundu.empback.entities.Role;
 
 public record AppUserRequestDTO(
         String name,
         String email,
         String password,
-        List<String> roles
+        Role roles
 ) {
 }

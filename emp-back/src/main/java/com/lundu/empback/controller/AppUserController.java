@@ -24,9 +24,9 @@ public class AppUserController {
         return new ResponseEntity<>(appUserService.showAll(), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/show/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AppUserResponseDTO> getOneAppUser(@PathVariable("name") String name){
-        return new ResponseEntity<>(appUserService.find(name), HttpStatus.OK);
+    @GetMapping(value = "/show/{email}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<AppUserResponseDTO> getOneAppUser(@PathVariable("email") String email){
+        return new ResponseEntity<>(appUserService.find(email), HttpStatus.OK);
     }
 
     @PostMapping(value = "/store", consumes = MediaType.APPLICATION_JSON_VALUE)

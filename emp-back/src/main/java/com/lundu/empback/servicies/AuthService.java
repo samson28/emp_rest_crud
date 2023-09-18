@@ -1,5 +1,7 @@
 package com.lundu.empback.servicies;
 
+import com.lundu.empback.security.TokenGenerator;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,15 +21,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class AuthService {
-    @Autowired
-    private JwtEncoder jwtEncoder;
-    @Autowired
-    private JwtDecoder jwtDecoder;
-    @Autowired
-    private UserDetailsService userDetailsService;
-    @Autowired
-    private AuthenticationManager authenticationManager;
+
+    private final JwtDecoder jwtDecoder;
+
+    private final TokenGenerator tokenGenerator;
+
+    private final AuthenticationManager authenticationManager;
 
     public Map<String,String> authenticate(String username, String password){
 
@@ -44,23 +45,8 @@ public class AuthService {
             return idToken;
         }
 
-        Instant instant = Instant.now();
-        String scope = authentication.getAuthorities().stream().map(auth->auth.getAuthority()).collect(Collectors.joining(" "));
-        JwtClaimsSet jwtClaimsSet = JwtClaimsSet.builder()
-                .subject(authentication.getName())
-                .issuedAt(instant)
-                .expiresAt(instant.plus(1, ChronoUnit.MINUTES))
-                .issuer("security-service")
-                .claim("scope",scope)
-                .build();
-        String jwtAccessToken = jwtEncoder.encode(JwtEncoderParameters.from(jwtClaimsSet)).getTokenValue();
-        JwtClaimsSet jwtClaimsSetRefresh = JwtClaimsSet.builder()
-                .subject(authentication.getName())
-                .issuedAt(instant)
-                .expiresAt(instant.plus(20, ChronoUnit.HOURS))
-                .issuer("security-service")
-                .build();
-        String jwtRefreshToken = jwtEncoder.encode(JwtEncoderParameters.from(jwtClaimsSetRefresh)).getTokenValue();
+        String jwtAccessToken = tokenGenerator.generateAccessToken(authentication);
+        String jwtRefreshToken = tokenGenerator.generateRefreshToken(authentication);
         idToken.put("status","success");
         idToken.put("access_token",jwtAccessToken);
         idToken.put("refresh_token",jwtRefreshToken);
@@ -79,18 +65,8 @@ public class AuthService {
             return idToken;
         }
         String subject = decodeJwt.getSubject();
-        UserDetails userDetails = userDetailsService.loadUserByUsername(subject);
-        Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
-        String scope = authorities.stream().map(auth->auth.getAuthority()).collect(Collectors.joining(" "));
 
-        JwtClaimsSet jwtClaimsSet = JwtClaimsSet.builder()
-                .subject(subject)
-                .issuedAt(instant)
-                .expiresAt(instant.plus(1, ChronoUnit.MINUTES))
-                .issuer("security-service")
-                .claim("scope",scope)
-                .build();
-        String jwtAccessToken = jwtEncoder.encode(JwtEncoderParameters.from(jwtClaimsSet)).getTokenValue();
+        String jwtAccessToken = tokenGenerator.refreshAccessToken(subject);
         idToken.put("status","success");
         idToken.put("accessToken",jwtAccessToken);
         return idToken;

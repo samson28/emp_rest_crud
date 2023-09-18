@@ -4,11 +4,11 @@ import com.lundu.empback.dto.request.AppUserRequestDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Entity
 @Getter
@@ -17,16 +17,19 @@ import java.util.stream.Collectors;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AppUser {
+public class AppUser implements UserDetails {
     @Id
     private String id;
     private String name;
     @Column(unique = true)
     private String email;
     private String password;
-    @ManyToMany(fetch = FetchType.EAGER  )
+    @Enumerated(EnumType.STRING)
+    private Role roles;
+
+/*    @ManyToMany(fetch = FetchType.EAGER  )
     @ToString.Exclude
-    private List<AppRole> roles;
+    private List<AppRole> roles;*/
 
     public static AppUser fromDTO(AppUserRequestDTO appUserRequestDTO) {
         AppUser appUser = new AppUser();
@@ -34,7 +37,7 @@ public class AppUser {
         appUser.setEmail(appUserRequestDTO.email());
         appUser.setName(appUserRequestDTO.name());
         appUser.setPassword(appUserRequestDTO.password());
-        appUser.setRoles(appUserRequestDTO.roles().stream().map(e -> new AppRole(e)).collect(Collectors.toList()));
+        appUser.setRoles(appUserRequestDTO.roles());
         return appUser;
     }
 
@@ -42,7 +45,7 @@ public class AppUser {
         if(appUserRequestDTO.name() != null) this.name = appUserRequestDTO.name();
         if(appUserRequestDTO.email() != null) this.email = appUserRequestDTO.email();
         if(appUserRequestDTO.password() != null) this.password = appUserRequestDTO.password();
-        if(appUserRequestDTO.roles() != null) this.roles = appUserRequestDTO.roles().stream().map(e -> new AppRole(e)).collect(Collectors.toList());
+        if(appUserRequestDTO.roles() != null) this.roles = appUserRequestDTO.roles();
     }
 
     @Override
@@ -59,5 +62,40 @@ public class AppUser {
     @Override
     public final int hashCode() {
         return getClass().hashCode();
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+         return List.of(new SimpleGrantedAuthority(roles.name()));
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }
